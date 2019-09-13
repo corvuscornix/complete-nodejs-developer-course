@@ -1,0 +1,19 @@
+{
+  "name": "complete-nodejs-developer-course",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/corvuscornix/complete-nodejs-developer-course.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "homepage": "https://github.com/corvuscornix/complete-nodejs-developer-course#readme",
+  "keywords": [],
+  "description": "",
+  "dependencies": {
+    "chalk": "^2.4.1",
+    "nodemon": "^1.19.2",
+    "validator": "^11.1.0",
+    "yargs": "^12.0.2"
+  }
+}
