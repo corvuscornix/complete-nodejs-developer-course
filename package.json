@@ -12,6 +12,8 @@
   "description": "Personal progress through the Udemy course: The Complete Node.js Developer Course (3rd Edition)",
   "dependencies": {
     "chalk": "^2.4.1",
+    "express": "^4.17.1",
+    "hbs": "^4.0.4",
     "nodemon": "^1.19.2",
     "request": "^2.88.0",
     "validator": "^11.1.0",
