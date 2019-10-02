@@ -46,7 +46,23 @@ function fetchWeatherDataForCoordinates(longitude, latitude, callback, errorCall
     })
 }
 
+function fetchWeatherDataForLocation (locationName, callback) {
+    fetchCoordinatesForLocationName(locationName,
+        (locationData) => {
+            const {center} = locationData
+            fetchWeatherDataForCoordinates(center[0], center[1], (weatherData) => {
+                callback(undefined, {
+                    locationData,
+                    weatherData
+                })
+            }, (error) => callback(error))
+        },
+        (error) => callback(error)
+    )
+}
+
 module.exports = {
     fetchCoordinatesForLocationName,
-    fetchWeatherDataForCoordinates
+    fetchWeatherDataForCoordinates,
+    fetchWeatherDataForLocation
 }

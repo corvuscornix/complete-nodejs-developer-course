@@ -1,8 +1,8 @@
 
 const weatherForm = document.querySelector('form')
 const search = document.querySelector('input')
-const messageOne = document.getElementById('result')
-const messageTwo = document.getElementById('error')
+const messageOne = document.getElementById('message1')
+const messageTwo = document.getElementById('message2')
 
 weatherForm.addEventListener('submit', (e) => {
     e.preventDefault()
@@ -17,7 +17,12 @@ weatherForm.addEventListener('submit', (e) => {
                 return
             }
             messageOne.textContent = `Weather at ${data.location}`
-            messageTwo.textContent = `${data.summary} Temperature ${data.temperature} °C  with ${data.possibilityOfRain} % possibility of rain.`
+            let content = `<p>${data.summary} Temperature ${data.temperature} °C  with ${data.possibilityOfRain} % possibility of rain.</p>`
+            if (data.alerts) {
+                data.alerts.forEach(alert => content += `<article><h5>${alert.title}</h5><p>${alert.description}</p></article>`)
+            }
+
+            messageTwo.innerHTML = content
         })
     })
 })

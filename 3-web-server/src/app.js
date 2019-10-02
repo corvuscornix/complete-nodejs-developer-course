@@ -1,7 +1,7 @@
 const path = require('path')
 const express = require('express')
 const hbs = require('hbs')
-const {fetchCoordinatesForLocationName, fetchWeatherDataForCoordinates} = require('./utils')
+const {fetchWeatherDataForLocation} = require('./utils')
 
 const publicDirPath = path.join(__dirname, '../public')
 const viewsPath = path.join(__dirname, '../templates/views')
@@ -46,19 +46,23 @@ app.get('/weather', (req, res) => {
             error: 'You must provide address'
         })
     }
-    fetchCoordinatesForLocationName(req.query.address,
-        ({center, place_name}) => fetchWeatherDataForCoordinates(center[0], center[1], (data) => {
-            const { daily, currently } = data
+
+    fetchWeatherDataForLocation(req.query.address, (error, data) => {
+        if (error) {
+            res.send({error})
+        } else {
+            const { place_name } = data.locationData
+            const { daily, currently, alerts } = data.weatherData
             res.send({
                 address: req.query.address,
                 location: place_name,
                 summary: daily.data[0].summary,
                 temperature: currently.temperature,
-                possibilityOfRain: currently.precipProbability
+                possibilityOfRain: currently.precipProbability,
+                alerts
             })
-        }, (error) => res.send({error})),
-        (error) => res.send({error})
-    )   
+        }
+    })
 })
 
 app.get('/help/*', (req,res) => {

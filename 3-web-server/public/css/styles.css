@@ -54,3 +54,8 @@ button {
     background: #888888;
     color: white;
 }
+
+#message2 p:first-child {
+    background: #9e9e9e1f;
+    padding: 24px;
+}
