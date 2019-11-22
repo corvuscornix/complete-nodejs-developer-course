@@ -1,6 +1,8 @@
 const express = require('express')
 const User = require('./../models/user')
 const auth = require('./../middleware/auth');
+const errorToJsonFormatter = require('./../middleware/error');
+const multer = require('multer');
 
 const router = new express.Router();
 
@@ -58,21 +60,7 @@ router.get('/users/me', auth, async (req, res) => {
     res.send(req.user);
 });
 
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id;
-
-    try {
-        const user = await User.findById(_id);
-        if (!user) {
-            return res.status(404).send();   
-        }
-        res.send(user);
-    } catch (e) {
-        res.status(500).send();
-    }
-});
-
-router.patch('/users/:id', async (req, res) => {
+router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body);
     const allowedUpdates = ['name', 'email', 'password', 'age'];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
@@ -82,32 +70,71 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findById(req.params.id);
+        const user = req.user;
 
-        update.forEach((update) => user[update] = req.body[update]);
+        updates.forEach((update) => user[update] = req.body[update]);
         await user.save();
-
-        if (!user) {
-            res.status(404).send({error: 'No user found for given id'});
-        }
 
         res.send(user);
 
     } catch (e) {
+       if (e.name === 'ValidationError') {
+        res.status(400).send({error: e.message}); 
+       }
         res.status(400).send();
     }
 });
 
-router.delete('/users/:id', async (req, res) => {
-
-    try {
-        const user = await User.findByIdAndDelete(req.params.id);
-
-        if (!user) {
-            return res.status(404).send();
+const upload = multer({
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, file, callback) {
+        
+        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+            return callback(new Error('Supported avatar formats are jpg, jpeg and png'));
         }
 
-        res.send(user);
+        callback(undefined, true);
+    }
+});
+
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+    req.user.avatar = req.file.buffer;
+    await req.user.save();
+    res.send();
+}, errorToJsonFormatter);
+
+router.delete('/users/me/avatar', auth, async (req, res) => {
+    req.user.avatar = undefined;
+    await req.user.save();
+    res.send();
+}, errorToJsonFormatter);
+
+router.get('/users/:id/avatar', async (req, res) => {
+
+    try {
+        const user = await User.findById({ _id: req.params.id });
+
+        if (!user || !user.avatar) {
+            throw new Error('No user or avatar');
+        }
+        res.set('Content-Type', 'image/jpg');
+        res.send(user.avatar);
+    } catch (e) {
+        console.log(e);
+        res.status(400).send();
+    }
+
+}, errorToJsonFormatter);
+
+router.delete('/users/me', auth, async (req, res) => {
+
+    try {
+        //const user = await User.findByIdAndDelete(req.user._id);
+        await req.user.remove();
+
+        res.send(req.user);
     } catch (e) {
         res.status(500).send();
     }

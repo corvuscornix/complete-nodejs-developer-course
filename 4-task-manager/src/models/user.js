@@ -1,7 +1,8 @@
-const mongoose = require('mongoose')
-const validator = require('validator')
-const bcrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Task = require('../models/task');
 
 const userSchema = new mongoose.Schema({
     name: {
@@ -41,12 +42,23 @@ const userSchema = new mongoose.Schema({
             return true;
         }
     },
+    avatar: {
+        type: Buffer
+    },
     tokens: [{
         token: {
             type: String,
             required: true
         }
     }]
+}, {
+    timestamps: true
+});
+
+userSchema.virtual('tasks', {
+    ref: 'Task',
+    localField: '_id',
+    foreignField: 'owner'
 });
 
 // Statics are model methods
@@ -66,7 +78,18 @@ userSchema.statics.findByCredentials = async (email, password) => {
     return user;
 }
 
-// Methods are instance methods
+// Methods are instance methods, note the usage of classic function notation because we need "this" binding
+userSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+
+    delete userObject.password;
+    delete userObject.tokens;
+    delete userObject.__v;
+
+    return userObject;
+}
+
 userSchema.methods.generateAuthToken = async function () {
     const user = this;
     const token = jwt.sign({ _id: user._id.toString() }, 'thisismyhashkey');
@@ -77,6 +100,8 @@ userSchema.methods.generateAuthToken = async function () {
     return token;
 }
 
+// Mongoose middleware
+
 // Has the plain text password before saving
 userSchema.pre('save', async function (next) {
     const user = this;
@@ -84,6 +109,14 @@ userSchema.pre('save', async function (next) {
     if (user.isModified('password')) {
         user.password = await bcrypt.hash(user.password, 8);
     }
+
+    next();
+});
+
+userSchema.pre('remove', async function (next) {
+    const user = this;
+
+    await Task.deleteMany({ owner: user._id });
 
     next();
 });
