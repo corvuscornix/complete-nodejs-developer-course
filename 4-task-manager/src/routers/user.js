@@ -3,6 +3,7 @@ const User = require('./../models/user')
 const auth = require('./../middleware/auth');
 const errorToJsonFormatter = require('./../middleware/error');
 const multer = require('multer');
+const sharp = require('sharp');
 
 const router = new express.Router();
 
@@ -91,7 +92,7 @@ const upload = multer({
     },
     fileFilter(req, file, callback) {
         
-        if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|webp)$/)) {
             return callback(new Error('Supported avatar formats are jpg, jpeg and png'));
         }
 
@@ -100,7 +101,8 @@ const upload = multer({
 });
 
 router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
-    req.user.avatar = req.file.buffer;
+    const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
+    req.user.avatar = buffer;
     await req.user.save();
     res.send();
 }, errorToJsonFormatter);
@@ -119,7 +121,7 @@ router.get('/users/:id/avatar', async (req, res) => {
         if (!user || !user.avatar) {
             throw new Error('No user or avatar');
         }
-        res.set('Content-Type', 'image/jpg');
+        res.set('Content-Type', 'image/png');
         res.send(user.avatar);
     } catch (e) {
         console.log(e);
