@@ -1,22 +1,22 @@
 {
-  "name": "complete-nodejs-developer-course",
-  "version": "1.0.0",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/corvuscornix/complete-nodejs-developer-course.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "homepage": "https://github.com/corvuscornix/complete-nodejs-developer-course#readme",
-  "keywords": [],
-  "description": "Personal progress through the Udemy course: The Complete Node.js Developer Course (3rd Edition)",
-  "dependencies": {
-    "chalk": "^2.4.1",
-    "express": "^4.17.1",
-    "hbs": "^4.0.4",
-    "nodemon": "^1.19.2",
-    "request": "^2.88.0",
-    "validator": "^11.1.0",
-    "yargs": "^12.0.2"
-  }
+    "name": "complete-nodejs-developer-course",
+    "version": "1.0.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/corvuscornix/complete-nodejs-developer-course.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "homepage": "https://github.com/corvuscornix/complete-nodejs-developer-course#readme",
+    "keywords": [],
+    "description": "Personal progress through the Udemy course: The Complete Node.js Developer Course (3rd Edition)",
+    "dependencies": {
+        "chalk": "^2.4.1",
+        "express": "^4.17.1",
+        "hbs": "^4.0.4",
+        "nodemon": "^1.19.2",
+        "request": "^2.88.0",
+        "validator": "^11.1.0",
+        "yargs": "^12.0.2"
+    }
 }
